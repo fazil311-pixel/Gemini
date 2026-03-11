@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Carrom Pro - Glossy Edition</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        body { background-color: #1a1a1a; display: flex; justify-content: center; align-items: center; height: 100vh; margin: 0; overflow: hidden; }
+        
+        /* The Board Frame (Dark Beige Wood) */
+        .board-frame {
+            padding: 25px;
+            background: linear-gradient(145deg, #8b7355, #5d4a37); /* Dark Beige Wood */
+            border-radius: 15px;
+            box-shadow: inset 0 0 40px rgba(0,0,0,0.6), 0 20px 50px rgba(0,0,0,0.8);
+            border: 4px solid #3d2b1f;
+        }
+
+        /* The Lacquered Surface */
+        canvas {
+            background: radial-gradient(circle, #f5deb3 0%, #e1c16e 100%); /* Surface Beige */
+            border-radius: 4px;
+            display: block;
+            box-shadow: inset 0 0 100px rgba(139, 115, 85, 0.3);
+        }
+
+        .controls { position: absolute; bottom: 20px; color: #e1c16e; font-family: sans-serif; font-weight: bold; text-transform: uppercase; letter-spacing: 2px; }
+    </style>
+</head>
+<body>
+
+    <div class="board-frame">
+        <canvas id="carromBoard" width="600" height="600"></canvas>
+    </div>
+
+    <div class="controls">Drag Striker to Aim • Release to Shoot</div>
+
+    <script>
+        const canvas = document.getElementById('carromBoard');
+        const ctx = canvas.getContext('2d');
+
+        function drawBoard() {
+            // 1. Draw Inner Markings (Faint lines)
+            ctx.strokeStyle = "rgba(61, 43, 31, 0.2)";
+            ctx.lineWidth = 2;
+            
+            // Outer Boundary Line
+            ctx.strokeRect(40, 40, 520, 520);
+            
+            // The Center Design (Mandala Pattern)
+            ctx.beginPath();
+            ctx.arc(300, 300, 40, 0, Math.PI * 2);
+            ctx.stroke();
+
+            // 2. The Pockets (Deep Black)
+            const pocketPos = [40, 560];
+            pocketPos.forEach(x => {
+                pocketPos.forEach(y => {
+                    ctx.fillStyle = "#000";
+                    ctx.beginPath();
+                    ctx.arc(x, y, 22, 0, Math.PI * 2);
+                    ctx.fill();
+                });
+            });
+
+            // 3. Draw Coins with Glossy Finish
+            // x, y, color, label
+            const coins = [
+                {x: 300, y: 300, color: '#ef4444', type: 'Queen'}, // Red
+                {x: 300, y: 265, color: '#ffffff', type: 'White'},
+                {x: 300, y: 335, color: '#ffffff', type: 'White'},
+                {x: 265, y: 300, color: '#1a1a1a', type: 'Black'},
+                {x: 335, y: 300, color: '#1a1a1a', type: 'Black'},
+            ];
+
+            coins.forEach(coin => drawPiece(coin.x, coin.y, coin.color, 14));
+
+            // 4. The Striker (Large, Premium Gloss)
+            drawPiece(300, 480, '#fde68a', 20, true);
+        }
+
+        function drawPiece(x, y, color, radius, isStriker = false) {
+            ctx.save();
+            
+            // Base shadow
+            ctx.shadowColor = "rgba(0,0,0,0.4)";
+            ctx.shadowBlur = 5;
+            ctx.shadowOffsetY = 3;
+
+            // Main Body
+            const grad = ctx.createRadialGradient(x-radius/3, y-radius/3, radius/10, x, y, radius);
+            if(color === '#ffffff') {
+                grad.addColorStop(0, '#ffffff');
+                grad.addColorStop(1, '#d1d5db');
+            } else if(color === '#1a1a1a') {
+                grad.addColorStop(0, '#4b5563');
+                grad.addColorStop(1, '#000000');
+            } else {
+                grad.addColorStop(0, color);
+                grad.addColorStop(1, '#7f1d1d');
+            }
+
+            ctx.fillStyle = grad;
+            ctx.beginPath();
+            ctx.arc(x, y, radius, 0, Math.PI * 2);
+            ctx.fill();
+
+            // The Glossy Highlight (Reflection)
+            ctx.shadowBlur = 0;
+            ctx.shadowOffsetY = 0;
+            ctx.fillStyle = "rgba(255,255,255,0.4)";
+            ctx.beginPath();
+            ctx.ellipse(x - radius/2.5, y - radius/2.5, radius/3, radius/5, Math.PI / 4, 0, Math.PI * 2);
+            ctx.fill();
+
+            // Inner Grooves (Carrom coin detail)
+            ctx.strokeStyle = "rgba(0,0,0,0.1)";
+            ctx.lineWidth = 1;
+            ctx.beginPath();
+            ctx.arc(x, y, radius * 0.7, 0, Math.PI * 2);
+            ctx.stroke();
+
+            ctx.restore();
+        }
+
+        drawBoard();
+    </script>
+</body>
+</html>
